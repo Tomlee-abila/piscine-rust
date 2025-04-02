@@ -2,7 +2,7 @@ pub fn add(left: u64, right: u64) -> u64 {
     left + right
 }
 
-pub struct Student (u32, String, String);
+pub struct Student (pub u32, pub String, pub String);
 
 pub fn id(student: &Student) -> u32 {
     student.0
