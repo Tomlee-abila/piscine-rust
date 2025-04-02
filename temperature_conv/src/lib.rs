@@ -1,5 +1,11 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
+pub fn fahrenheit_to_celsius(f: f64) -> f64 {
+    // (5.0/9.0)*(f-32.0)
+    (f - 32.0) * 5.0 / 9.0
+}
+
+pub fn celsius_to_fahrenheit(c: f64) -> f64 {
+    ((9.0/5.0)*c)+32.0
+    
 }
 
 #[cfg(test)]
@@ -8,7 +14,7 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
+        assert_eq!(fahrenheit_to_celsius(-459.67), -273.15);
+        assert_eq!(celsius_to_fahrenheit(0.0), 32.0);
     }
 }
