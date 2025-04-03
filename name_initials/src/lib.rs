@@ -12,10 +12,10 @@ pub fn initials(names: Vec<&str>) -> Vec<String> {
 
         for n in names_{
             if let Some(initial) = n.chars().next(){
-                initial_s.push(initial.to_string());
+                initial_s.push(initial.to_string()+".");
             }
         }
-        result.push(initial_s.join(" ."));
+        result.push(initial_s.join(" "));
     }
     result
 }
