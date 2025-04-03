@@ -1,15 +1,14 @@
 pub fn add(left: u64, right: u64) -> u64 {
     left + right
 }
-pub fn first_subword(s: String) -> String {
-    let mut result: String = String::new();
+pub fn first_subword(mut s: String) -> String {
     for (i,ch) in s.chars().enumerate(){
         if i > 0 && (ch.is_uppercase() || ch == '_'){
+            s.truncate(i);
             break;
         }
-        result.push(ch);
     }
-    result
+    s
 }
 
 #[cfg(test)]
