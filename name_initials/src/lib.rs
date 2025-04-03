@@ -6,15 +6,13 @@ pub fn initials(names: Vec<&str>) -> Vec<String> {
     let mut result: Vec<String> = Vec::with_capacity(names.len());
 
     for name in names{
-        let mut initial_s: Vec<String> = Vec::new();
-
-        for n in name.trim().split_whitespace(){
-            if let Some(initial) = n.chars().next(){
-                initial_s.push(initial.to_string());
-                initial_s.push(".".to_string());
-            }
+        let mut initial: String = String::new();
+        for n in name.split_whitespace(){
+            initial.push(n.chars().next().expect("error in getting string"));
+            initial.push('.');
+            initial.push(' ');
         }
-        result.push(initial_s.join(" "));
+        result.push(initial.trim_end().to_string());
     }
     result
 }
