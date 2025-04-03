@@ -10,7 +10,8 @@ pub fn initials(names: Vec<&str>) -> Vec<String> {
 
         for n in name.trim().split_whitespace(){
             if let Some(initial) = n.chars().next(){
-                initial_s.push(initial.to_string()+".");
+                initial_s.push(initial.to_string());
+                initial_s.push(".")
             }
         }
         result.push(initial_s.join(" "));
