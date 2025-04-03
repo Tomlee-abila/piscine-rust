@@ -3,12 +3,10 @@ pub fn add(left: u64, right: u64) -> u64 {
 }
 pub fn first_subword(mut s: String) -> String {
     let mut result: String = String::new();
-    let mut count = 0;
-    for ch in s.chars(){
-        if ((ch >= 'A' && ch <= 'Z') || ch == '_') && count != 0{
-            return result;
+    for (i,ch) in s.chars().enumerate(){
+        if i > 0 && (ch.is_uppercase() || ch == '_'){
+            break;
         }
-        count += 1;
         result.push(ch);
     }
     result
