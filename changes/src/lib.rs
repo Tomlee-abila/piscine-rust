@@ -18,11 +18,7 @@ impl Light {
 }
 
 pub fn change_brightness(lights: &mut [Light], alias: &str, value: u8) {
-    for light in lights.iter_mut(){
-        if light.alias == alias{
-            light.brightness = value;
-        }
-    }
+    lights.iter_mut().for_each(|l| if l.alias == alias{l.brightness = value});
 }
 
 #[cfg(test)]
