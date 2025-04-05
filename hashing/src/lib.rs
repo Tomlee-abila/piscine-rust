@@ -1,16 +1,8 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
-}
+use std::collections::HashMap;
 
 pub fn mean(list: &[i32]) -> f64 {
-	let sum: f64 = list.iter().map(|&x| x as f64).sum();
-	let len = list.len();
-	if len == 0{
-		0.0
-	}else{
-		sum/len as f64
-	}
-	
+    let sum: i32 = list.into_iter().sum();
+    sum as f64 / list.len() as f64
 }
 
 pub fn median(list: &[i32]) -> i32 {
@@ -43,15 +35,4 @@ pub fn mode(list: &[i32]) -> i32 {
     }
 
     num
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
 }
