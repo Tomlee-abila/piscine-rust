@@ -33,7 +33,7 @@ impl Circle {
 }
 
 #[derive(Debug, Clone, Copy)]
-pub struct Point(f64, f64);
+pub struct Point(pub f64, pub f64);
 
 impl Point {
     pub fn distance(&self, p: Point) -> f64{
