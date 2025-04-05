@@ -2,7 +2,7 @@ pub fn add(left: u64, right: u64) -> u64 {
     left + right
 }
 
-pub fn sum(a: [i32; 32]) -> i32 {
+pub fn sum(a: &[i32; 32]) -> i32 {
 	a.iter().sum()
 }
 
