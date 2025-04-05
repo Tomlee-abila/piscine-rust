@@ -2,6 +2,8 @@ pub fn add(left: u64, right: u64) -> u64 {
     left + right
 }
 
+use rand::Rng;
+
 #[derive(Debug, PartialEq, Eq)]
 pub enum Suit {
     Heart,
