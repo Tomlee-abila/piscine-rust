@@ -16,20 +16,26 @@ pub fn capitalize_first(input: &str) -> String {
 }
 
 pub fn title_case(input: &str) -> String {
-	input
-		.split_whitespace()
-			.map(|word|{
-				let mut result: String = String::new();
-				for (i, ch) in word.chars().enumerate(){
-					if i == 0 && ch.is_ascii_lowercase(){						
-						result.push(ch.to_ascii_uppercase().into());
-					}else{
-						result.push(ch);
-					}
-				}
-				result
-			}).collect::<Vec<String>>().join(" ")
-	
+    let mut result = String::new();
+    let mut in_whitespace = false;
+
+    for (i, ch) in input.chars().enumerate() {
+        if ch.is_whitespace() {
+            // If whitespace, preserve it and continue to the next character
+            result.push(ch);
+            in_whitespace = true;
+        } else {
+            // Capitalize the first non-whitespace character after a space
+            if in_whitespace || i == 0 {
+                result.push(ch.to_ascii_uppercase());
+                in_whitespace = false;
+            } else {
+                result.push(ch.to_ascii_lowercase());
+            }
+        }
+    }
+
+    result
 }
 
 pub fn change_case(input: &str) -> String {
