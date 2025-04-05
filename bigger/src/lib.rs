@@ -2,6 +2,8 @@ pub fn add(left: u64, right: u64) -> u64 {
     left + right
 }
 
+use std::collections::HashMap;
+
 pub fn bigger(h: HashMap<&str, i32>) -> i32 {
 	let mut big: i32 = 0;
 
