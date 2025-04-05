@@ -1,0 +1,27 @@
+pub fn add(left: u64, right: u64) -> u64 {
+    left + right
+}
+
+pub fn word_frequency_counter(words: Vec<&str>) -> HashMap<&str, usize> {
+	let mut frequency_count: HashMap<&str, usize> = HashMap::new();
+
+	for word in words{
+		*frequency_count.entry(word).or_insert(0) += 1;
+	}
+	frequency_count
+}
+
+pub fn nb_distinct_words(frequency_count: &HashMap<&str, usize>) -> usize {
+	frequency_count.len()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn it_works() {
+        let result = add(2, 2);
+        assert_eq!(result, 4);
+    }
+}
