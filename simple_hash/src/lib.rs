@@ -2,6 +2,8 @@ pub fn add(left: u64, right: u64) -> u64 {
     left + right
 }
 
+use std::collections::HashMap;
+
 pub fn word_frequency_counter(words: Vec<&str>) -> HashMap<&str, usize> {
 	let mut frequency_count: HashMap<&str, usize> = HashMap::new();
 
