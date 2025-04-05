@@ -19,10 +19,10 @@ pub fn title_case(input: &str) -> String {
 	input
 		.split_whitespace()
 			.map(|word|{
-				let mut result = String::new();
+				let mut result: String = String::new();
 				for (i, ch) in word.chars().enumerate(){
-					if i == 0{						
-						result.push_str(&(ch.to_ascii_uppercase().to_string()))
+					if i == 0 && ch.is_ascii_lowercase(){						
+						result.push(ch.to_ascii_uppercase().into());
 					}else{
 						result.push(ch);
 					}
@@ -50,6 +50,7 @@ pub fn change_case(input: &str) -> String {
 			});
 	result
 }
+
 
 #[cfg(test)]
 mod tests {
