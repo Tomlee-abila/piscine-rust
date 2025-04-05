@@ -4,7 +4,7 @@ pub fn add(left: u64, right: u64) -> u64 {
 
 use rand::Rng;
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Copy)]
 pub enum Suit {
     Heart,
     Diamond,
@@ -12,7 +12,7 @@ pub enum Suit {
     Club
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Copy)]
 pub enum Rank {
     Ace,
     King,
@@ -67,7 +67,7 @@ impl Rank {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Copy)]
 pub struct Card {
     pub suit: Suit,
     pub rank: Rank,
