@@ -11,9 +11,9 @@ pub struct Circle {
 }
 
 impl Circle {
-    pub fn new(p1: f64, p2: f64, radius: f64)-> Circle{
+    pub fn new(x: f64, y: f64, radius: f64)-> Circle{
         Circle{
-            center: Point(p1, p2),
+            center: Point(x, y),
             radius
         }
     }
