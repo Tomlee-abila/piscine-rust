@@ -1,7 +1,7 @@
 pub fn fetch_data(server: Result<&str, &str>, security_level: Security) -> String {
     match security_level {
         Security::Unknown =>{
-            server.expect("").to_owned()
+            server.unwrap().to_owned()
         },
         Security::Message => {
             match server {
