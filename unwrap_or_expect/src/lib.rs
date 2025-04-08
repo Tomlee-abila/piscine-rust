@@ -9,7 +9,7 @@ pub fn fetch_data(server: Result<&str, &str>, security_level: Security) -> Strin
         
         // Error cases
         (Err(_msg), Security::Unknown) => panic!(),
-        (Err(msg), Security::Message) => panic!("ERROR: program stops"),
+        (Err(_msg), Security::Message) => panic!("ERROR: program stops"),
         (Err(_msg), Security::Warning) => "WARNING: check the server".to_string(),
         (Err(msg), Security::NotFound) => format!("Not found: {}", msg),
         (Err(msg), Security::UnexpectedUrl) => msg.to_string(),
