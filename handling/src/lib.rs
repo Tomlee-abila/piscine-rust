@@ -1,12 +1,13 @@
-use std::fs;
-use std::io;
+use std::fs::OpenOptions;
+use std::io::Write;
 
-pub fn open_or_create(file: &str, content: &str){
-    let file = File::open(file);
-    
-    match file{
-        Ok()=> File::write(file, content),
-        Err(_)=> File::create(file, content),
-        _=> unwrap()
-    }
+fn open_or_create(file: &str, content: &str) {
+    let mut file = OpenOptions::new()
+        .write(true)
+        .append(true)
+        .create(true)
+        .open(file)
+        .expect("Failed to open or create file");
+
+    writeln!(file, "{}", content).unwrap();
 }
