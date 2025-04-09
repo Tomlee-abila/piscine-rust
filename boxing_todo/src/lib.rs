@@ -34,9 +34,10 @@ impl TodoList {
             .to_string();
 
         
-        let tasks_array = json_value["tasks"]
-            .as_array()
-            .ok_or(err::ParseErr::Malformed("Missing or invalid tasks array".into()))?;
+        let tasks_array = match &json_value["tasks"] {
+            json::JsonValue::Array(arr) => arr,
+            _ => return Err(Box::new(err::ParseErr::Malformed("Missing or invalid tasks array".into()))),
+        };
 
         if tasks_array.is_empty() {
             return Err(Box::new(err::ParseErr::Empty));
