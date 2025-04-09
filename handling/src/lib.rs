@@ -1,7 +1,8 @@
 use std::fs::OpenOptions;
 use std::io::Write;
+use std::path::Path;
 
-fn open_or_create(file: &str, content: &str) {
+pub fn open_or_create(file: &Path, content: &str) {
     let mut file = OpenOptions::new()
         .write(true)
         .append(true)
