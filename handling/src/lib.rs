@@ -10,5 +10,5 @@ pub fn open_or_create(file: &Path, content: &str) {
         .open(file)
         .expect("Failed to open or create file");
 
-    writeln!(file, "{}", content).unwrap();
+    write!(file, "{}", content).unwrap();
 }
