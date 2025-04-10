@@ -1,8 +1,7 @@
 use case::CaseExt;
 
 pub fn expected_variable(compared: &str, expected: &str) -> Option<String> {
-    let is_valid_case = compared.is_camel_case() || compared.is_snake_case();
-
+    let is_valid_case = compared.is_camel_lowercase() || is_snake_case(compared);
     if !is_valid_case {
         return None;
     }
@@ -24,9 +23,17 @@ pub fn expected_variable(compared: &str, expected: &str) -> Option<String> {
 }
 
 
+fn is_snake_case(s: &str) -> bool {
+    !s.is_empty()
+        && s.chars().all(|c| c.is_ascii_lowercase() || c == '_' || c.is_ascii_digit())
+        && !s.contains(char::is_uppercase)
+        && !s.starts_with('_')
+        && !s.ends_with('_')
+}
+
+
 pub fn edit_distance(s1: &str, s2: &str) -> usize {
     let mut costs = vec![0; s2.len() + 1];
-
     for j in 0..=s2.len() {
         costs[j] = j;
     }
