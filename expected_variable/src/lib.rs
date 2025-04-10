@@ -1,7 +1,7 @@
 use case::CaseExt;
 
 pub fn expected_variable(compared: &str, expected: &str) -> Option<String> {
-    // Ensure it's either snake_case or camelCase
+
     let is_snake = compared == &compared.to_snake();
     let is_camel = compared == &compared.to_camel();
 
@@ -25,7 +25,7 @@ pub fn expected_variable(compared: &str, expected: &str) -> Option<String> {
     }
 }
 
-// Sample Levenshtein distance function if not already present
+
 pub fn edit_distance(s1: &str, s2: &str) -> usize {
     let mut costs = vec![0; s2.len() + 1];
 
