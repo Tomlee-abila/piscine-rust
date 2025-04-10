@@ -1,11 +1,9 @@
 use case::CaseExt;
 
 pub fn expected_variable(compared: &str, expected: &str) -> Option<String> {
+    let is_valid_case = compared.is_camel_case() || compared.is_snake_case();
 
-    let is_snake = compared == &compared.to_snake();
-    let is_camel = compared == &compared.to_camel();
-
-    if !(is_snake || is_camel) {
+    if !is_valid_case {
         return None;
     }
 
@@ -13,7 +11,7 @@ pub fn expected_variable(compared: &str, expected: &str) -> Option<String> {
     let expected_lower = expected.to_lowercase();
 
     let distance = edit_distance(&compared_lower, &expected_lower);
-    let max_len = expected.len().max(compared.len());
+    let max_len = expected_lower.len().max(compared_lower.len());
 
     let similarity = 1.0 - (distance as f64 / max_len as f64);
     let percentage = (similarity * 100.0).round() as u32;
