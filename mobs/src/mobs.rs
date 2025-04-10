@@ -1,9 +1,10 @@
-// mod.rs
+
 pub mod boss;
 pub mod member;
 
-use member::{Member, Role};
-use boss::Boss;
+pub use boss::*;
+pub use member::*;
+
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Mob {
@@ -13,60 +14,67 @@ pub struct Mob {
     pub cities: Vec<(String, u8)>,
     pub wealth: u32,
 }
-
 impl Mob {
-    // Associated function to recruit a new member
     pub fn recruit(&mut self, name: &str, age: u8) {
-        let new_member = Member::new(name, Role::Associate, age);
-        self.members.push(new_member);
+        self.members.push(Member::new(name ,Role::Associate , age))
     }
 
-    // Associated function to attack another mob
-    pub fn attack(&mut self, other: &mut Mob) {
-        let self_power = self.calculate_power();
-        let other_power = other.calculate_power();
+    pub fn attack(&mut self, mob: Mob) {
+        let mut atk_score: u32 = 0;
+        let mut def_score: u32 = 0;
 
-        // Compare power combat scores and remove a member from the mob with the lower score
-        if self_power < other_power {
-            if !self.members.is_empty() {
-                self.members.pop();
-            }
-            if other.members.is_empty() {
-                self.wealth += other.wealth;
-                self.cities.extend(other.cities.clone());
-            }
-        } else if other_power < self_power {
-            if !other.members.is_empty() {
-                other.members.pop();
-            }
-            if self.members.is_empty() {
-                other.wealth += self.wealth;
-                other.cities.extend(self.cities.clone());
+        for member in &mut self.members {
+            match member.role {
+                Role::Underboss => atk_score += 4,
+                Role::Caporegime => atk_score += 3,
+                Role::Soldier => atk_score += 2,
+                Role::Associate => atk_score += 1,
             }
         }
-    }
-
-    // Associated function to steal wealth from another mob
-    pub fn steal(&mut self, other: &mut Mob, amount: u32) {
-        let stolen = std::cmp::min(amount, other.wealth);
-        self.wealth += stolen;
-        other.wealth -= stolen;
-    }
-
-    // Associated function to conquer a city
-    pub fn conquer_city(&mut self, mobs: &Vec<Mob>, city_name: &str, city_value: u8) {
-        if mobs.iter().all(|mob| !mob.cities.iter().any(|(name, _)| name == city_name)) {
-            self.cities.push((city_name.to_string(), city_value));
+        for member in &mut mob.members {
+            match member.role {
+                Role::Underboss => def_score += 4,
+                Role::Caporegime => def_score += 3,
+                Role::Soldier => def_score += 2,
+                Role::Associate => def_score += 1,
+            }
         }
+        if atk_score > def_score {
+            mob.members.pop();
+            if mob.members.len() == 0 {
+                self.wealth += mob.wealth;
+                mob.wealth = 0;
+                self.cities.append(&mut mob.cities)
+            }
+        } else {
+            self.members.pop();
+            if self.members.len() == 0 {
+                mob.wealth += self.wealth;
+                self.wealth = 0;
+                mob.cities.append(&mut self.cities)
+            }
+        } 
     }
 
-    // Function to calculate power score of the mob
-    fn calculate_power(&self) -> u32 {
-        self.members.iter().map(|m| match m.role {
-            Role::Underboss => 4,
-            Role::Caporegime => 3,
-            Role::Soldier => 2,
-            Role::Associate => 1,
-        }).sum()
+    pub fn steal(&mut self, mob:&mut Mob, mut value: u32) {
+        if mob.wealth <= value {
+            value = mob.wealth;
+        }
+        mob.wealth -= value;
+        self.wealth += value;
+    }
+
+    pub fn conquer_city(&mut self, mobs: Vec<Mob>, city_name: String, value: u8) {
+        let mut is_taked = false;
+        for mob in mobs {
+            for city in mob.cities {
+                if city.0 == city_name {
+                    is_taked = true;
+                }
+            }
+        }
+        if is_taked == false {
+            self.cities.push((city_name , value ));
+        }
     }
 }
