@@ -1,72 +1,103 @@
-mod mall;
-use mall::floor::store::Store;
-use mall::floor::store::employee::Employee;
-use mall::Mall;
-use mall::guard::Guard;
 
-pub fn biggest_store(mall: Mall) -> Store {
-    mall.floors
-        .iter()
-        .flat_map(|floor| floor.stores.clone())
-        .max_by_key(|store| store.square_meters)
-        .unwrap()
-}
+pub mod mall;
 
-pub fn highest_paid_employee(mall: Mall) -> Vec<Employee> {
-    let all_employees: Vec<Employee> = mall.floors
-        .iter()
-        .flat_map(|floor| floor.stores.iter())
-        .flat_map(|store| store.employees.clone())
-        .collect();
+pub use std::cmp::Ordering;
+pub use mall::*;
+pub use mall::floor::store::Store;
+pub use mall::floor::store;
+pub use mall::floor::store::employee::Employee;
+pub use mall::guard::Guard;
 
-    let max_salary = all_employees
-        .iter()
-        .map(|emp| emp.salary)
-        .fold(0.0, f64::max);
-
-    all_employees
-        .into_iter()
-        .filter(|emp| emp.salary == max_salary)
-        .collect()
-}
-
-pub fn nbr_of_employees(mall: Mall) -> usize {
-    mall.floors
-        .iter()
-        .flat_map(|floor| floor.stores.iter())
-        .map(|store| store.employees.len())
-        .sum::<usize>() + mall.guards.len()
-}
-
-pub fn check_for_securities(mall: &mut Mall, guards: Vec<Guard>) {
-    let total_square_meters: u64 = mall.floors
-        .iter()
-        .flat_map(|floor| floor.stores.iter())
-        .map(|store| store.square_meters)
-        .sum();
-
-    let required_guards = (total_square_meters as f64 / 200.0).ceil() as usize;
-    let current_guards = mall.guards.len();
-
-    if required_guards > current_guards {
-        let to_hire = required_guards - current_guards;
-        for guard in guards.into_iter().take(to_hire) {
-            mall.hire_guard(guard);
+pub fn biggest_store(m : Mall) ->Store{
+    let mut biggest = Store::new("", 0, Vec::new());
+    for floor in m.floors {
+        for store in floor.stores {
+            if store.square_meters > biggest.square_meters {
+                biggest = store;
+            }
         }
     }
+    biggest
 }
 
-pub fn cut_or_raise(mall: &mut Mall) {
-    for floor in &mut mall.floors {
-        for store in &mut floor.stores {
-            for emp in &mut store.employees {
-                let hours = emp.working_hours.1 as i8 - emp.working_hours.0 as i8;
-                if hours > 10 {
-                    emp.raise(emp.salary * 0.10);
-                } else {
-                    emp.cut(emp.salary * 0.10);
+pub fn highest_paid_employee(m : Mall) -> Vec<Employee> {
+    let mut employees = Vec::new();
+    let mut highest = Employee::new("", 0, 0, 0, 0.0);
+    for floor in m.floors {
+        for store in floor.stores {
+            for employee in store.employees {
+                if employee.salary > highest.salary {
+                    employees.clear();
+                    highest = employee;
+                    employees.push(highest.clone());
+                } else if employee.salary == highest.salary {
+                    employees.push(employee.clone());
                 }
             }
         }
     }
+    employees
+}
+    
+pub fn nbr_of_employees(m : Mall) -> usize {
+    let mut nbr = 0; 
+    for floor in m.floors {
+        for store in floor.stores {
+            nbr += store.employees.len() as usize;
+        }
+    }
+    for _guard in m.guards {
+        nbr += 1;
+    }
+    nbr
+}
+
+
+// If there is not at least 1 guard for every 200 square meters of floor size, a guard should be added to the Mall.guards.
+pub fn check_for_securities( m : &mut Mall , mut guards : Vec<Guard>) {
+    println!("old nbr {:?}", m.guards.len());
+    println!("guards {:?}", guards.len());
+    println!("--------------------------------");
+
+    let mut size = 0;
+    for floor in &m.floors {
+        size += floor.size_limit;
+    }
+    println!("size {:?}", size);
+    let mut nbr_needed = size / 200;
+    if size % 200 != 0 {
+        nbr_needed += 1;
+    }
+    println!("nbr_needed {:?}", nbr_needed);
+
+    let guard_missing = nbr_needed - m.guards.len() as u64;
+   
+    for _needed in 0..guard_missing {
+        
+        m.guards.push(guards[0].clone());
+        guards.remove(0);
+    }
+    println!("--------------------------------");
+    println!("new nbr {:?}", m.guards.len());
+    println!("guards: {:?}", guards.len());
+
+}
+
+
+pub fn cut_or_raise( m : &mut Mall) {
+
+    for floor in &mut m.floors {
+        for store in &mut floor.stores {
+            for  employee in &mut store.employees {
+                if employee.working_hours.1 - employee.working_hours.0 > 10 {
+                    let amount = employee.salary * 0.1;
+                    employee.raise(amount); // REGARDER LES SETTERS ET LES GETTERS
+                } else if employee.working_hours.1 - employee.working_hours.0 < 10 {
+                    let amount = employee.salary * 0.1;
+                    employee.cut(amount);
+                }
+            }
+        }
+    }
+    
 }
