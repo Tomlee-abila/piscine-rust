@@ -1,28 +1,26 @@
+extern crate case;
 use case::CaseExt;
 
-pub fn expected_variable(compared: &str, expected: &str) -> Option<String> {
-    let is_valid_case = compared.is_camel_lowercase() || is_snake_case(compared);
-    if !is_valid_case {
+pub fn expected_variable(original: &str, expected: &str) -> Option<String> {
+    // Return None if not camelCase or snake_case
+    if !original.is_camel_lowercase() && !is_snake_case(original) {
         return None;
     }
 
-    let compared_lower = compared.to_lowercase();
-    let expected_lower = expected.to_lowercase();
+    // Case-insensitive edit distance
+    let diff = edit_distance(&original.to_lowercase(), &expected.to_lowercase());
+    let max_len = std::cmp::max(original.len(), expected.len());
 
-    let distance = edit_distance(&compared_lower, &expected_lower);
-    let max_len = expected_lower.len().max(compared_lower.len());
+    let similarity = ((max_len - diff) as f64 / max_len as f64) * 100.0;
 
-    let similarity = 1.0 - (distance as f64 / max_len as f64);
-    let percentage = (similarity * 100.0).round() as u32;
-
-    if similarity > 0.5 {
-        Some(format!("{}%", percentage))
+    if similarity >= 50.0 {
+        Some(format!("{}%", similarity.round() as u32))
     } else {
         None
     }
 }
 
-
+// Helper function for snake_case validation
 fn is_snake_case(s: &str) -> bool {
     !s.is_empty()
         && s.chars().all(|c| c.is_ascii_lowercase() || c == '_' || c.is_ascii_digit())
@@ -31,27 +29,30 @@ fn is_snake_case(s: &str) -> bool {
         && !s.ends_with('_')
 }
 
-
-pub fn edit_distance(s1: &str, s2: &str) -> usize {
-    let mut costs = vec![0; s2.len() + 1];
-    for j in 0..=s2.len() {
-        costs[j] = j;
-    }
-
-    for (i, c1) in s1.chars().enumerate() {
-        let mut last_cost = i;
-        costs[0] = i + 1;
-
-        for (j, c2) in s2.chars().enumerate() {
-            let new_cost = if c1 == c2 {
-                last_cost
+// Your edit_distance function (unchanged and solid!)
+pub fn edit_distance(source: &str, target: &str) -> usize {
+    let w1 = source.chars().collect::<Vec<_>>();
+    let w2 = target.chars().collect::<Vec<_>>();
+ 
+    let source_length = w1.len() + 1;
+    let target_length = w2.len() + 1;
+ 
+    let mut matrix = vec![vec![0; source_length]; target_length];
+ 
+    for i in 1..source_length { matrix[0][i] = i; }
+    for j in 1..target_length { matrix[j][0] = j; }
+ 
+    for j in 1..target_length {
+        for i in 1..source_length {
+            let x: usize = if w1[i-1] == w2[j-1] {
+                matrix[j-1][i-1]
             } else {
-                1 + last_cost.min(costs[j]).min(costs[j + 1])
+                1 + std::cmp::min(
+                        std::cmp::min(matrix[j][i-1], matrix[j-1][i]),
+                        matrix[j-1][i-1])
             };
-            last_cost = costs[j + 1];
-            costs[j + 1] = new_cost;
+            matrix[j][i] = x;
         }
     }
-
-    costs[s2.len()]
+    matrix[target_length - 1][source_length - 1]
 }
