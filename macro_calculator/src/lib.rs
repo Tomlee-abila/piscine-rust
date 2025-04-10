@@ -1,36 +1,49 @@
-#[derive(Debug)]
+use json::JsonValue;
+
 pub struct Food {
-    //expected public fields
     pub name: String,
-    pub calories: [String;2],
+    pub calories: [String; 2], 
     pub fats: f64,
     pub carbs: f64,
     pub proteins: f64,
     pub nbr_of_portions: f64,
 }
 
-pub fn calculate_macros(foods: Vec<Food>) -> json::JsonValue {
-    let mut macro_json = json::JsonValue::new_object();
-    let mut calories = 0.0;
-    let mut fats = 0.0;
-    let mut carbs = 0.0;
-    let mut proteins = 0.0;
-
-    for food in foods.iter() {
-        calories += food.calories[1].replace("kcal", "").parse::<f64>().unwrap() * food.nbr_of_portions;
-        fats += food.fats * food.nbr_of_portions;
-        carbs += food.carbs * food.nbr_of_portions;
-        proteins += food.proteins * food.nbr_of_portions;
+fn smart_round(value: f64) -> f64 {
+    let rounded = (value * 100.0).round() / 100.0;
+    if (rounded * 10.0).fract() == 0.0 {
+        (rounded * 10.0).round() / 10.0
+    } else {
+        rounded
     }
-    calories = (calories * 100.0).round() / 100.0; 
-    fats = (fats * 100.0).round() / 100.0;
-    carbs = (carbs * 100.0).round() / 100.0;
-    proteins = (proteins * 100.0).round() / 100.0;
-    
-    macro_json["cals"] = json::JsonValue::Number(calories.into());
-    macro_json["carbs"] = json::JsonValue::Number(carbs.into());
-    macro_json["proteins"] = json::JsonValue::Number(proteins.into());
-    macro_json["fats"] = json::JsonValue::Number(fats.into());
+}
 
-    macro_json
+pub fn calculate_macros(foods: Vec<Food>) -> JsonValue {
+    let mut total_cals = 0.0;
+    let mut total_fats = 0.0;
+    let mut total_carbs = 0.0;
+    let mut total_proteins = 0.0;
+
+    for food in foods {
+        let kcal_str = &food.calories[1]; 
+        let kcal: f64 = kcal_str
+            .replace("kcal", "")
+            .trim()
+            .parse()
+            .unwrap_or(0.0);
+
+        let portions = food.nbr_of_portions;
+
+        total_cals += kcal * portions;
+        total_fats += food.fats * portions;
+        total_carbs += food.carbs * portions;
+        total_proteins += food.proteins * portions;
+    }
+
+    json::object! {
+        "cals": smart_round(total_cals),
+        "carbs": smart_round(total_carbs),
+        "proteins": smart_round(total_proteins),
+        "fats": smart_round(total_fats)
+    }
 }
