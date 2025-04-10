@@ -1,4 +1,4 @@
-
+// boss.rs
 #[derive(Debug, Clone, PartialEq)]
 pub struct Boss {
     pub name: String,
@@ -6,10 +6,10 @@ pub struct Boss {
 }
 
 impl Boss {
-    pub fn new(name: &str, age: u8) -> Boss {
+    pub fn new(name: &str, age: u8) -> Self {
         Boss {
             name: name.to_string(),
-            age: age,
+            age,
         }
     }
 }
