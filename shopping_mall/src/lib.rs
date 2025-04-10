@@ -1,7 +1,9 @@
-use mall::floor::store::Store;
-use mall::floor::store::employee::Employee;
-use mall::Mall;
-use mall::guard::Guard;
+mod mall;
+use crate::mall::Mall;
+use crate::mall::guard::Guard;
+use crate::mall::floor::store::Store;
+use crate::mall::floor::store::employee::Employee;
+
 
 pub fn biggest_store(mall: Mall) -> Store {
     mall.floors
