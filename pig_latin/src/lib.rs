@@ -5,7 +5,7 @@ pub fn pig_latin(text: &str) -> String {
     for (i, ch) in text.char_indices() {
         if ch.is_ascii_alphabetic() {
             if i == 0 && is_vowel(ch) {
-                return format!("{}", text);
+                return format!("{}ay", text);
             }
             if is_vowel(ch) {
                 if third > 0 && ch.to_ascii_lowercase() == 'u' && third + 1 == i {
