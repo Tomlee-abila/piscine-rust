@@ -9,20 +9,19 @@ pub struct Color {
 impl Color {
     pub fn swap(mut self, first: u8, second: u8) -> Color {
         self.r = swap_value(self.r, first, second);
-        self.g= swap_value(self.g, first, second);
-        self.b= swap_value(self.b, first, second); 
-        self.a= swap_value(self.a, first, second);
-        self        
-
+        self.g = swap_value(self.g, first, second);
+        self.b = swap_value(self.b, first, second);
+        self.a = swap_value(self.a, first, second);
+        self
     }
 }
 
-fn swap_value(value: u8, first: u8, second: u8)-> u8{
-    if value == first{
+fn swap_value(value: u8, first: u8, second: u8) -> u8 {
+    if value == first {
         second
-    }else if value == second{
+    } else if value == second {
         first
-    }else{
+    } else {
         value
     }
 }
