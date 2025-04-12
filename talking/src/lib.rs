@@ -1,14 +1,38 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
-}
+pub fn talking(text: &str) -> &str {
+    let text = text.trim();
+    let len = text.chars().count();
+    if text.is_empty(){
+        return "Just say something!";
+    }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+    let mut answers = std::collections::HashMap::new();
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
+    answers.insert("yell", true);      
+    answers.insert("question_yell", false);
+    answers.insert("question", false); 
+
+    for (i,ch) in text.chars().enumerate(){
+        if i == len-1 && ch == '?'{
+            if answers["yell"]{
+                answers.insert("question_yell", true);
+            }else {
+                answers.insert("question", true);
+            }
+            continue;
+        }
+
+        if ch.is_ascii_lowercase(){
+            answers.insert("yell", false);
+        }
+    }
+
+    if answers["question_yell"]{
+        return "Quiet, I am thinking!";
+    }else if answers["question"]{
+         return "Sure.";
+    }else if answers["yell"] {
+        return "There is no need to yell, calm down!";
+    }else{
+        return "Interesting";
     }
 }
