@@ -15,7 +15,7 @@ impl Node {
         self.ref_list = self
             .ref_list
             .iter()
-            .filter(|rc| **rc != element)
+            .filter(|rc| **rc != element.clone().into())
             .cloned()
             .collect::<Vec<Rc<String>>>();
     }
