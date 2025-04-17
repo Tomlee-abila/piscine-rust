@@ -29,11 +29,11 @@ impl GameSession {
         if self.is_finished(){
             return;
         }
-        if self.p1.0.clone() == user_name{
+        if self.p1.0 == user_name{
             self.p1.1 += 1;
         }
 
-        if self.p2.0.clone() == user_name{
+        if self.p2.0 == user_name{
             self.p2.1 += 1;
         }
 
@@ -43,7 +43,7 @@ impl GameSession {
     }
 
     pub fn is_finished(&self) -> bool{
-        if self.p1.1 + self.p2.1 == self.nb_games{
+        if self.p1.1 > self.nb_games/2 || self.p2.1 > self.nb_games/2{
             return true;
         }
         false
