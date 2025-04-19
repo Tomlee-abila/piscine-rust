@@ -1,7 +1,4 @@
-use std::{
-    fmt::Display,
-    ops::{Add, Mul},
-};
+use std::fmt::Display;
 
 #[derive(Debug)]
 pub struct Player {
@@ -49,8 +46,8 @@ impl Food for Fruit {
 
 impl Food for Meat {
     fn gives(&self) -> f64 {
-        (self.weight_in_kg - self.fat_content)
-            .mul(4.0)
-            .add(self.fat_content.mul(9.0))
+        let fat_weight = self.weight_in_kg * self.fat_content; 
+        let protein_weight = self.weight_in_kg * (1.0 - self.fat_content);
+        protein_weight * 4.0 + fat_weight * 9.0
     }
 }
