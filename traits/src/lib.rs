@@ -40,7 +40,7 @@ pub trait Food {
 
 impl Food for Fruit {
     fn gives(&self) -> f64 {
-        self.weight_in_kg.mul(4.0)
+        self.weight_in_kg*4.0
     }
 }
 
