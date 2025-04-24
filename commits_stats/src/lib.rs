@@ -41,4 +41,4 @@ pub fn commits_per_author(data: &JsonValue) -> HashMap<String, u32> {
     }
     
     author_counts
-}
+}   
