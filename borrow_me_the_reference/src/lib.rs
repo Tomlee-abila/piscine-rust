@@ -1,63 +1,70 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
-}
-
 pub fn delete_and_backspace(s: &mut String) {
-    let mut chars: Vec<char> = s.chars().collect();
-    let mut i = chars.len() ;	
-	while i  > 0 {
-		i -= 1;
-        if chars[i] == '+' {
-			chars.remove(i); 
-            if i < chars.len() {
-                chars.remove(i);
+    let mut count = 0;
+    let mut result = String::new(); 
+
+    for c in s.chars() {
+        if c == '-' {
+            if result.len() >= 2 {
+                result.truncate(result.len() - 1);
+            }
+            continue;
+        } else if c == '+' {
+            count += 1;
+            continue;
+        }
+
+        if count > 0 {
+            count -= 1;
+            continue;
+        }
+
+        result.push(c);
+    }
+
+    *s = result;
+}
+
+pub fn do_operations(v: &mut [String]) {
+    for word in v {
+        let mut hld = String::from("");
+        let mut hld1 = String::from("");
+        let mut op = String::from("");
+        let mut check = false;
+
+        for c in word.chars() {
+            if c == '-' && hld.len() > 0 {
+                op = "-".to_string();
+                check = true;
+                continue
+            } else if c == '+' && hld.len() > 0 {
+                op = "+".to_string();
+                check = true;
+                continue
+            }
+
+            if check {
+                hld1.push(c);
+                continue
+            } else {
+                hld.push(c);
+                continue
             }
         }
-    }	
-    i = 0;
-    while i < chars.len() {
-        if chars[i] == '-' {
-            if i > 0 {
-                chars.remove(i - 1);
-                i -= 1;
-            }
-            chars.remove(i); 
-        }  else {
-            i += 1;
+
+        let n1: i32 = hld.parse().expect("error");
+        let n2: i32 = hld1.parse().expect("error");
+
+        if op == "+".to_string() {
+            *word = (n1 + n2).to_string();
+        } else if op == "-".to_string() {
+            *word = (n1 - n2).to_string();
         }
     }
-	
-    *s = chars.into_iter().collect();
 }
 
 
 
 
-
-
-pub fn do_operations(v: &mut Vec<String>) {
-    for element in v.iter_mut() {
-        let operator_index = element.chars().position(|c| c == '+' || c == '-');
-        if let Some(i) = operator_index {
-            let operator = element.chars().nth(i);
-            let (left, right) = element.split_at(i);
-            let x = left.trim().parse::<i32>().expect("invalid number");
-            let y = right.trim().parse::<i32>().expect("invalid number");
-            if let Some(o) = operator {
-                match o {
-                    '+' => {
-						*element = (x + y).to_string()
-					},
-                    '-' => {
-                        let y = -y;
-						*element = (x - y).to_string()
-					}
-					_ => println!("{} is not a valid operator!!",o)
-                }
-            }
-        }
-    }
-}
 
 #[cfg(test)]
 mod tests {
@@ -65,7 +72,17 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
+        let mut a = "bpp--o+er+++sskroi-++lcw".to_owned();
+        delete_and_backspace(&mut a);
+        let mut b = [
+        "2+2".to_owned(),
+        "3+2".to_owned(),
+        "10-3".to_owned(),
+        "5+5".to_owned(),
+        ];
+        do_operations(&mut b);
+
+        assert_eq!(a, "borrow".to_owned());
+        assert_eq!(b, ["4".to_string(), "5".to_string(), "7".to_string(), "10".to_string()]);
     }
 }
