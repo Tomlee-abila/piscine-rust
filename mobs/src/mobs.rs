@@ -1,80 +1,91 @@
+use std::collections::{HashMap, HashSet};
+use self::boss::Boss;
+use self::member::{Member, Role};
 
+// Declare submodules
 pub mod boss;
 pub mod member;
 
-pub use boss::*;
-pub use member::*;
-
-
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, PartialEq)]
 pub struct Mob {
-    pub name: String,
-    pub boss: Boss,
-    pub members: Vec<Member>,
-    pub cities: Vec<(String, u8)>,
-    pub wealth: u32,
+    name: String,
+    boss: Boss,
+    members: HashMap<String, Member>,
+    cities: HashSet<String>,
+    wealth: u64,
 }
+
 impl Mob {
-    pub fn recruit(&mut self, name: &str, age: u8) {
-        self.members.push(Member::new(name ,Role::Associate , age))
+    pub fn new(name: &str, boss: Boss) -> Self {
+        Mob {
+            name: name.to_string(),
+            boss,
+            members: HashMap::new(),
+            cities: HashSet::new(),
+            wealth: 0,
+        }
     }
 
-    pub fn attack(&mut self, mob: Mob) {
-        let mut atk_score: u32 = 0;
-        let mut def_score: u32 = 0;
+    pub fn recruit(&mut self, member_info: (&str, u32)) {
+        let (name, age) = member_info;
+        let member = Member {
+            role: Role::Associate,
+            age,
+        };
+        self.members.insert(name.to_string(), member);
+    }
 
-        for member in &mut self.members {
-            match member.role {
-                Role::Underboss => atk_score += 4,
-                Role::Caporegime => atk_score += 3,
-                Role::Soldier => atk_score += 2,
-                Role::Associate => atk_score += 1,
-            }
-        }
-        for member in &mut mob.members {
-            match member.role {
-                Role::Underboss => def_score += 4,
-                Role::Caporegime => def_score += 3,
-                Role::Soldier => def_score += 2,
-                Role::Associate => def_score += 1,
-            }
-        }
-        if atk_score > def_score {
-            mob.members.pop();
-            if mob.members.len() == 0 {
-                self.wealth += mob.wealth;
-                mob.wealth = 0;
-                self.cities.append(&mut mob.cities)
-            }
+    pub fn attack(&mut self, other: &mut Mob) {
+        let self_score = self.calculate_combat_score();
+        let other_score = other.calculate_combat_score();
+
+        let self_is_winner = self_score > other_score;
+        let (loser, winner) = if self_is_winner {
+            (other, self)
         } else {
-            self.members.pop();
-            if self.members.len() == 0 {
-                mob.wealth += self.wealth;
-                self.wealth = 0;
-                mob.cities.append(&mut self.cities)
+            (self, other)
+        };
+
+        let min_age = loser.members.values().map(|m| m.age).min();
+        if let Some(min_age) = min_age {
+            let youngest_members: Vec<String> = loser
+                .members
+                .iter()
+                .filter(|(_, m)| m.age == min_age)
+                .map(|(name, _)| name.clone())
+                .collect();
+
+            for name in youngest_members {
+                loser.members.remove(&name);
             }
-        } 
-    }
 
-    pub fn steal(&mut self, mob:&mut Mob, mut value: u32) {
-        if mob.wealth <= value {
-            value = mob.wealth;
-        }
-        mob.wealth -= value;
-        self.wealth += value;
-    }
-
-    pub fn conquer_city(&mut self, mobs: Vec<Mob>, city_name: String, value: u8) {
-        let mut is_taked = false;
-        for mob in mobs {
-            for city in mob.cities {
-                if city.0 == city_name {
-                    is_taked = true;
-                }
+            if loser.members.is_empty() {
+                winner.cities.extend(loser.cities.drain());
+                winner.wealth += loser.wealth;
+                loser.wealth = 0;
             }
         }
-        if is_taked == false {
-            self.cities.push((city_name , value ));
+    }
+
+    fn calculate_combat_score(&self) -> u64 {
+        self.members.values().map(|m| match m.role {
+            Role::Underboss => 4,
+            Role::Caporegime => 3,
+            Role::Soldier => 2,
+            Role::Associate => 1,
+        }).sum()
+    }
+
+    pub fn steal(&mut self, target: &mut Mob, amount: u64) {
+        let actual_amount = amount.min(target.wealth);
+        target.wealth -= actual_amount;
+        self.wealth += actual_amount;
+    }
+
+    pub fn conquer_city(&mut self, other_mobs: &[&Mob], city: String) {
+        let city_taken = other_mobs.iter().any(|mob| mob.cities.contains(&city));
+        if !city_taken {
+            self.cities.insert(city);
         }
     }
 }
