@@ -1,88 +1,55 @@
-use boxing_todo::{err::{ParseErr, ReadErr}, TodoList, Task};
+mod err;
+
+use std::{error::Error, fs};
 use json::JsonValue;
-use std::{error::Error, fs::File};
+pub use err::{ ParseErr, ReadErr };
 
-#[test]
-fn test_valid_todo() {
-    let json_content = r#"{
-        "title": "TODO LIST FOR PISCINE RUST",
-        "tasks": [
-            { "id": 0, "description": "do this", "level": 0 },
-            { "id": 1, "description": "do that", "level": 5 }
-        ]
-    }"#;
-    let file_path = "test_todo.json";
-    File::create(file_path)
-        .unwrap()
-        .write_all(json_content.as_bytes())
-        .unwrap();
+#[derive(Debug, Eq, PartialEq)]
+pub struct Task {
+    pub id: u32,
+    pub description: String,
+    pub level: u32,
+}
 
-    let result = TodoList::get_todo(file_path);
-    assert!(result.is_ok());
-    let todo_list = result.unwrap();
-    assert_eq!(
-        todo_list,
-        TodoList {
-            title: "TODO LIST FOR PISCINE RUST".to_string(),
-            tasks: vec![
-                Task {
-                    id: 0,
-                    description: "do this".to_string(),
-                    level: 0,
-                },
-                Task {
-                    id: 1,
-                    description: "do that".to_string(),
-                    level: 5,
-                },
-            ],
+#[derive(Debug, Eq, PartialEq)]
+pub struct TodoList {
+    pub title: String,
+    pub tasks: Vec<Task>,
+}
+
+impl TodoList {
+    pub fn get_todo(path: &str) -> Result<TodoList, Box<dyn Error>> {
+        let content = fs::read_to_string(path)
+            .map_err(|e| Box::new(err::ReadErr { child_err: Box::new(e) }) as Box<dyn Error>)?;
+        
+        let parsed: JsonValue = json::parse(&content)
+            .map_err(|e| Box::new(err::ParseErr::Malformed(Box::new(e))) as Box<dyn Error>)?;
+        
+        let title = parsed["title"].as_str()
+            .ok_or_else(|| Box::new(err::ParseErr::Empty) as Box<dyn Error>)?
+            .to_string();
+    
+        let tasks_val = &parsed["tasks"];
+        if !tasks_val.is_array() {
+            return Err(Box::new(err::ParseErr::Empty));
         }
-    );
-}
-
-#[test]
-fn test_parse_err_empty() {
-    let json_content = r#"{
-        "title": "TODO LIST FOR PISCINE RUST",
-        "tasks": []
-    }"#;
-    let file_path = "test_empty_todo.json";
-    File::create(file_path)
-        .unwrap()
-        .write_all(json_content.as_bytes())
-        .unwrap();
-
-    let result = TodoList::get_todo(file_path);
-    assert!(result.is_err());
-    assert!(matches!(result.unwrap_err().downcast_ref::<ParseErr>().unwrap(), ParseErr::Empty));
-}
-
-#[test]
-fn test_parse_err_malformed() {
-    let json_content = r#"{
-        "something": ,
-    }"#;
-    let file_path = "test_malformed_todo.json";
-    File::create(file_path)
-        .unwrap()
-        .write_all(json_content.as_bytes())
-        .unwrap();
-
-    let result = TodoList::get_todo(file_path);
-    assert!(result.is_err());
-    let err = result.unwrap_err();
-    let ParseErr::Malformed(_) = err.downcast_ref::<ParseErr>().unwrap() else {
-        panic!("Expected ParseErr::Malformed");
-    };
-    assert!(err.source().unwrap().is::<json::Error>());
-}
-
-#[test]
-fn test_read_err() {
-    let result = TodoList::get_todo("non_existent_file.json");
-    assert!(result.is_err());
-    let ReadErr { child_err } = result.unwrap_err().downcast_ref::<ReadErr>().unwrap() else {
-        panic!("Expected ReadErr");
-    };
-    assert!(child_err.is::<std::io::Error>());
+        
+        let mut tasks = Vec::new();
+        for task_val in tasks_val.members() {
+            let id = task_val["id"].as_u32()
+                .ok_or_else(|| Box::new(err::ParseErr::Empty) as Box<dyn Error>)?;
+            let description = task_val["description"].as_str()
+                .ok_or_else(|| Box::new(err::ParseErr::Empty) as Box<dyn Error>)?
+                .to_string();
+            let level = task_val["level"].as_u32()
+                .ok_or_else(|| Box::new(err::ParseErr::Empty) as Box<dyn Error>)?;
+            tasks.push(Task { id, description, level });
+        }
+        
+        if tasks.is_empty() {
+            return Err(Box::new(err::ParseErr::Empty));
+        }
+        
+        Ok(TodoList { title, tasks })
+    }
 }
